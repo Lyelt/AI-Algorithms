@@ -9,12 +9,17 @@ namespace AI
 {
     internal class GradientDescentSolver : CSPSolver
     {
+        //private bool _solved = false;
+        private SudokuGrid _solvedGrid;
+        private List<Node> _canChange;
+
         public GradientDescentSolver(SudokuGrid initialGrid)
             : base(initialGrid)
         {
-            // Use default constructor
+            _solvedGrid = initialGrid; // start with the initial grid
+            _solvedGrid.Randomize();
         }
-
+        
         public override CSPSolution Solve()
         {
             Console.WriteLine("Solving using gradient descent");
@@ -30,7 +35,59 @@ namespace AI
 
         private void GradientDescent()
         {
+            foreach (Node node in _solvedGrid.EditableGrid)
+            {
+                DoDescent(node);
+            }
 
+            if (PerformEvaluationFunction() > 0)
+                GradientDescent();
+        }
+
+        private void DoDescent(Node currentNode)
+        {
+            int originalEvaluation = PerformEvaluationFunction();
+
+            // If we still have constraint violations...
+            if (originalEvaluation > 0)
+            {
+                int bestEvaluation = 0;
+                int bestValue = 0;
+
+                // Try every value in the current node's domain
+                foreach (int value in currentNode.Domain)
+                {
+                    int currentEvaluation = PerformEvaluationFunction();
+                    
+                    // If we are violating fewer constraints with the new guess, keep track
+                    if (currentEvaluation < originalEvaluation)
+                    {
+                        bestEvaluation = currentEvaluation;
+                        bestValue = value;
+                        _solvedGrid.SetGridValue(currentNode.Row, currentNode.Column, bestValue);
+                    }
+                }
+            }
+        }
+
+        // How many constraints are being violated by the current guess?
+        private int PerformEvaluationFunction()
+        {
+            int violations = 0;
+
+            foreach (Node node in _solvedGrid.Grid)
+            {
+                // The valid values for this node
+                List<int> validValues = GetValidValuesForNode(node);
+
+                // If the current value is not one of the valid ones, we have a violation
+                if (!validValues.Contains(node.Value))
+                {
+                    violations++;
+                }
+            }
+
+            return violations;
         }
     }
 }

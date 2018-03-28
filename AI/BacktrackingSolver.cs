@@ -48,7 +48,5 @@ namespace AI
 
             return false;
         }
-
-        
     }
 }

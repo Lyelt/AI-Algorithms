@@ -8,9 +8,12 @@ namespace AI
 {
     internal class SudokuGrid
     {
-        public static List<int> DEFAULT_DOMAIN = new List<int>() { 1, 2, 3, 4, 5, 6 };
+        public static List<int> DefaultDomain = new List<int>() { 1, 2, 3, 4, 5, 6 };
+        public static Random Randomizer = new Random();
 
         public List<Node> Grid { get; private set; }
+
+        public List<Node> EditableGrid { get; private set; }
        
         public int Rows { get; private set; }
 
@@ -21,6 +24,7 @@ namespace AI
             Rows = rows;
             Columns = cols;
             Grid = new List<Node>();
+            EditableGrid = new List<Node>();
             char[] initialGridValues = initialValueString.ToCharArray();
 
             for (int i = 0; i < rows; i++)
@@ -40,6 +44,17 @@ namespace AI
             SetAllNodeNeighbors();
         }
 
+        public void Randomize()
+        {
+            foreach (Node node in Grid)
+            {
+                if (node.Value == 0)
+                {
+                    node.Value = Randomizer.Next(1, DefaultDomain.Count + 1);
+                }
+            }
+        }
+
         public void SetGridValue(int rowNumber, int colNumber, int value)
         {
             Node node = new Node()
@@ -49,9 +64,12 @@ namespace AI
                 Value = value
             };
             
-            node.Domain = DEFAULT_DOMAIN;
+            node.Domain = DefaultDomain;
             node.Neighbors = new List<Node>();
             Grid.Add(node);
+
+            if (value == 0)
+                EditableGrid.Add(node);
         }
 
         private void SetAllNodeNeighbors()

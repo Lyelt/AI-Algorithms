@@ -13,19 +13,23 @@ namespace AI
         protected Stopwatch _solverStopwatch;
         protected int _procesesed = 0;
 
+        // Abstract Solve method that each solver must implement
+        public abstract CSPSolution Solve();
+
+        // Default constructor for all solvers. They all use a SudokuGrid
         protected CSPSolver(SudokuGrid initialGrid)
         {
             _grid = initialGrid;
         }
 
-        public abstract CSPSolution Solve();
-
         protected List<int> GetValidValuesForNode(Node node)
         {
-            List<int> validValues = SudokuGrid.DEFAULT_DOMAIN;
+            List<int> validValues = SudokuGrid.DefaultDomain;
 
             foreach(int value in validValues)
             {
+                // If any of the node's neighbors contain the value, it's invalid
+                // i.e. A node in the same row, column, or 2x3 square
                 if (node.Neighbors.Any(n => n.Value == value))
                     validValues.Remove(value);
             }
