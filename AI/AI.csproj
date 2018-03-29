@@ -42,12 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArcConsistencySolver.cs" />
-    <Compile Include="BacktrackingSolver.cs" />
+    <Compile Include="Solvers\ArcConsistencySolver.cs" />
+    <Compile Include="Solvers\BacktrackingSolver.cs" />
     <Compile Include="Constraint.cs" />
     <Compile Include="CSPSolution.cs" />
-    <Compile Include="GradientDescentSolver.cs" />
-    <Compile Include="CSPSolver.cs" />
+    <Compile Include="Solvers\GradientDescentSolver.cs" />
+    <Compile Include="Solvers\CSPSolver.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -56,5 +56,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

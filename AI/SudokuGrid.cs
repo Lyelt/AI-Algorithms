@@ -8,7 +8,7 @@ namespace AI
 {
     internal class SudokuGrid
     {
-        public static List<int> DefaultDomain = new List<int>() { 1, 2, 3, 4, 5, 6 };
+        public static readonly IReadOnlyList<int> DefaultDomain = new List<int>() { 1, 2, 3, 4, 5, 6 };
         public static Random Randomizer = new Random();
 
         public List<Node> Grid { get; private set; }
@@ -36,12 +36,13 @@ namespace AI
                     int currentIndex = (i * rows) + j;
                     char currentChar = initialGridValues[currentIndex];
                     int value = (int)char.GetNumericValue(currentChar);
-
-                    SetGridValue(i, j, value);
+                    
+                    SetInitialNodeValue(i, j, value);
                 }
             }
 
             SetAllNodeNeighbors();
+            SetAllNodeDomains();
         }
 
         public void Randomize()
@@ -55,23 +56,78 @@ namespace AI
             }
         }
 
-        public void SetGridValue(int rowNumber, int colNumber, int value)
+        // The first time we create a node
+        private void SetInitialNodeValue(int rowNumber, int colNumber, int value)
         {
-            Node node = new Node()
-            {
-                Row = rowNumber,
-                Column = colNumber,
-                Value = value
-            };
+            Node node = Node.Create(rowNumber, colNumber, value);
             
-            node.Domain = DefaultDomain;
+            node.Domain = DefaultDomain.ToList();
             node.Neighbors = new List<Node>();
             Grid.Add(node);
 
             if (value == 0)
+            {
+                node.Editable = true;
                 EditableGrid.Add(node);
+            }           
         }
 
+        // Set the value of an existing node, and make all the proper adjustments, such as domain
+        public void SetNodeValue(int rowNumber, int colNumber, int value)
+        {
+            Node existingNode = Grid.Find(n => n.Row == rowNumber && n.Column == colNumber);
+            SetNodeValue(existingNode, value);
+        }
+
+        public void SetNodeValue(Node node, int value)
+        {
+            // Override value
+            node.Value = value;
+            // Fix up the domain
+            node.Domain = GetNodeDomain(node);
+
+            SetAllNodeDomains();
+        }
+
+        // After the grid is constructed we can properly evaluated the domains of each node
+        private void SetAllNodeDomains()
+        {
+            foreach (Node node in Grid)
+            {
+                node.Domain = GetNodeDomain(node);
+            }
+        }
+
+        public static List<int> GetNodeDomain(Node node)
+        {
+            List<int> validValues = DefaultDomain.ToList();
+
+            if (node.Editable)
+            {
+                // Explicitly ToList the original so that we can remove stuff from it
+                foreach (int value in validValues.ToList())
+                {
+                    // If any of the node's neighbors contain the value, it's invalid
+                    // i.e. A node in the same row, column, or 2x3 square
+                    if (node.Neighbors.Any(n => n.Value == value))
+                        validValues.Remove(value);
+                }
+            }
+            else
+            {
+                // Not editable, we already know the value
+                validValues.RemoveAll(value => value != node.Value);
+            }
+
+            return validValues;
+        }
+
+        public Node GetNode(int row, int col)
+        {
+            return Grid.First(node => node.Row == row && node.Column == col);
+        }
+
+        // After the grid is constructed we can set the neighbors of each node
         private void SetAllNodeNeighbors()
         {
             foreach (Node node1 in Grid)
@@ -103,7 +159,7 @@ namespace AI
             if (node.Row <= 1 && node.Column <= 2)
                 boxNum = 1;
             // Top-right
-            else if (node.Row <= 2 && node.Column > 2)
+            else if (node.Row <= 1 && node.Column > 2)
                 boxNum = 2;
             // Middle-left
             else if (node.Row > 1 && node.Row < 3 && node.Column <= 2)
@@ -112,10 +168,10 @@ namespace AI
             else if (node.Row > 1 && node.Row < 3 && node.Column > 2)
                 boxNum = 4;
             // Bottom-left
-            else if (node.Row > 2 && node.Column <= 2)
+            else if (node.Row > 3 && node.Column <= 2)
                 boxNum = 5;
             // Bottom-right
-            else if (node.Row > 2 && node.Column > 2)
+            else if (node.Row > 3 && node.Column > 2)
                 boxNum = 6;
 
             return boxNum;

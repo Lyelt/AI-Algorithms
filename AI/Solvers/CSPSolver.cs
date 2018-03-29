@@ -22,27 +22,12 @@ namespace AI
             _grid = initialGrid;
         }
 
-        protected List<int> GetValidValuesForNode(Node node)
-        {
-            List<int> validValues = SudokuGrid.DefaultDomain;
-
-            foreach(int value in validValues)
-            {
-                // If any of the node's neighbors contain the value, it's invalid
-                // i.e. A node in the same row, column, or 2x3 square
-                if (node.Neighbors.Any(n => n.Value == value))
-                    validValues.Remove(value);
-            }
-
-            return validValues;
-        }
-
         protected Node GetNextEmptyNode()
         {
-            // Get the square with the smallest domain (fewest possible values currently)
+            // Get the empty square with the smallest domain (fewest possible values currently)
             int smallestDomain = _grid.Grid.Where(node => node.Value == 0).Min(node => node.Domain.Count);
             // Return the first one
-            return _grid.Grid.First(node => node.Domain.Count == smallestDomain);
+            return _grid.Grid.First(node => node.Domain.Count == smallestDomain && node.Value == 0);
         }
 
         protected CSPSolution CompleteSolve(string name)

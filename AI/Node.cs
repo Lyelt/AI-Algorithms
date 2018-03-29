@@ -18,6 +18,19 @@ namespace AI
 
         public List<int> Domain { get; set; }
 
+        public bool Editable { get; set; } = false; // explicitly set this to true on the initial creation if applicable
+
+        // Nice little static create method so that creating a node looks nicer
+        public static Node Create(int rowNumber, int colNumber, int value)
+        {
+            return new Node()
+            {
+                Row = rowNumber,
+                Column = colNumber,
+                Value = value
+            };
+        }
+
         // A node with the same row and column number is considered equal
         public override bool Equals(object obj)
         {

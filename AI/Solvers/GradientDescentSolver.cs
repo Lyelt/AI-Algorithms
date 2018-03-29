@@ -9,9 +9,7 @@ namespace AI
 {
     internal class GradientDescentSolver : CSPSolver
     {
-        //private bool _solved = false;
         private SudokuGrid _solvedGrid;
-        private List<Node> _canChange;
 
         public GradientDescentSolver(SudokuGrid initialGrid)
             : base(initialGrid)
@@ -64,7 +62,8 @@ namespace AI
                     {
                         bestEvaluation = currentEvaluation;
                         bestValue = value;
-                        _solvedGrid.SetGridValue(currentNode.Row, currentNode.Column, bestValue);
+                        _solvedGrid.SetNodeValue(currentNode.Row, currentNode.Column, bestValue);
+                        _procesesed++;
                     }
                 }
             }
@@ -78,7 +77,7 @@ namespace AI
             foreach (Node node in _solvedGrid.Grid)
             {
                 // The valid values for this node
-                List<int> validValues = GetValidValuesForNode(node);
+                List<int> validValues = SudokuGrid.GetNodeDomain(node);
 
                 // If the current value is not one of the valid ones, we have a violation
                 if (!validValues.Contains(node.Value))

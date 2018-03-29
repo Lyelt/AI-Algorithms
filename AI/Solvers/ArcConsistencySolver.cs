@@ -22,7 +22,16 @@ namespace AI
 
             // Do arc consistency checking to narrow the domains
             Queue<Arc> arcs = GetAllArcs();
-            DoArcConsistency(arcs);
+
+            try
+            {
+                DoArcConsistency(arcs);
+            }
+            catch (InvalidOperationException ioe)
+            {
+                Console.WriteLine(ioe.ToString());
+            }
+
 
             // Complete the solution with backtracking search
             BacktrackingSolver backtracker = new BacktrackingSolver(_grid);
@@ -61,12 +70,16 @@ namespace AI
         {
             bool revised = false;
 
+            // Don't bother trying to reduce the domain of something we were already given
+            if (!node1.Editable)
+                return revised;
+
             // Loop through the domain of the first node
-            foreach (int x1 in node1.Domain)
+            // Note that we explicity ToList() the domain so that we can actually modify the original domain as we loop through it
+            foreach (int x1 in node1.Domain.ToList())  
             {
-                // If there are any violations of our constraint (i.e. they are equal)
-                // Remove the value from node1's domain - it's invalid
-                if (node2.Domain.Any(x2 => x2 == x1))
+                // If this value results in any inconsistencies with node2, remove it from node1's domain
+                if (node2.Value == x1)
                 {
                     node1.Domain.Remove(x1);
                     revised = true;
@@ -84,15 +97,20 @@ namespace AI
             {
                 foreach (Node node2 in _grid.Grid)
                 {
-                    // Gives us a pair of nodes that are related
-                    // Should we check if the pair already exists backward?
-                    if (node1 != node2 && SudokuGrid.NodesAreRelated(node1, node2))
+                    if (node1 != node2 // it's the same node
+                        && SudokuGrid.NodesAreRelated(node1, node2) // nodes have to be related to be considered an arc
+                        && (node1.Editable || node2.Editable))      // at least one of them should be editable, otherwise why bother?
                     {
-                        arcs.Enqueue(new Arc()
+                        Arc arc = new Arc()
                         {
                             Node1 = node1,
                             Node2 = node2
-                        });
+                        };
+                        
+                        if (!arcs.Contains(arc) )
+                        {
+                            arcs.Enqueue(arc);
+                        }
                     }
                 }
             }

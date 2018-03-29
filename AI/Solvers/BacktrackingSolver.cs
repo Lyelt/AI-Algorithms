@@ -36,14 +36,15 @@ namespace AI
 
             // Get the next zero-value node to process
             Node nextNode = GetNextEmptyNode();
-            foreach (int value in GetValidValuesForNode(nextNode))
+            foreach (int value in nextNode.Domain.ToList())
             {
-                nextNode.Value = value; // put the value in the next node
+                _grid.SetNodeValue(nextNode, value); // put the value in the next node
+                _procesesed++;
 
                 if (BacktrackingSearch()) // try to continue
                     return true;
 
-                nextNode.Value = 0; // backtracking search failed, so remove the value we added
+                _grid.SetNodeValue(nextNode, 0); // backtracking search failed, so remove the value we added
             }
 
             return false;
