@@ -32,14 +32,13 @@ namespace AI
                 Console.WriteLine(ioe.ToString());
             }
 
-
             // Complete the solution with backtracking search
             BacktrackingSolver backtracker = new BacktrackingSolver(_grid);
             CSPSolution solution2 = backtracker.Solve();
 
             _solverStopwatch.Stop();
 
-            return CompleteSolve("Arc Consistency with Backtracking Search", solution2.SolutionGrid, _solverStopwatch.Elapsed, _procesesed);
+            return CompleteSolve("Arc Consistency with Backtracking Search", solution2.SolutionGrid, _solverStopwatch.Elapsed, _procesesed, _iterations);
         }
 
         private void DoArcConsistency(Queue<Arc> arcs)
@@ -78,12 +77,12 @@ namespace AI
             // Note that we explicity ToList() the domain so that we can actually modify the original domain as we loop through it
             foreach (int x1 in node1.Domain.ToList())  
             {
+                _procesesed++;
                 // If this value results in any inconsistencies with node2, remove it from node1's domain
                 if (node2.Value == x1)
                 {
                     node1.Domain.Remove(x1);
                     revised = true;
-                    _procesesed++;
                 }
             }
 

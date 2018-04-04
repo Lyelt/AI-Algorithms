@@ -23,8 +23,17 @@ namespace AI
             Console.WriteLine("Solving using gradient descent");
             _solverStopwatch = Stopwatch.StartNew();
 
-            GradientDescent();
-            
+            try
+            {
+                GradientDescent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Here is the best solution that was found: ");
+                return CompleteSolve("Gradient Descent - Aborted");
+            }
+
             _solverStopwatch.Stop();
             Console.WriteLine("Gradient descent complete");
 
@@ -33,39 +42,52 @@ namespace AI
 
         private void GradientDescent()
         {
+            if (_solverStopwatch.Elapsed.TotalSeconds > 60)
+                throw new InvalidOperationException("Could not solve in 60 seconds");
+
             foreach (Node node in _solvedGrid.EditableGrid)
             {
                 DoDescent(node);
             }
 
+            // Didn't solve, try again
             if (PerformEvaluationFunction() > 0)
+            {
+                _iterations++;
+                _solvedGrid.Randomize();
                 GradientDescent();
+            }
         }
 
         private void DoDescent(Node currentNode)
         {
-            int originalEvaluation = PerformEvaluationFunction();
-
+            int bestEvaluation = PerformEvaluationFunction();
             // If we still have constraint violations...
-            if (originalEvaluation > 0)
+            if (bestEvaluation > 0)
             {
-                int bestEvaluation = 0;
                 int bestValue = 0;
 
                 // Try every value in the current node's domain
                 foreach (int value in currentNode.Domain)
                 {
+                    // Try to set the node to a different value
+                    _solvedGrid.SetNodeValue(currentNode.Row, currentNode.Column, value);
+                    
+                    // See how that affects the evaluation function
                     int currentEvaluation = PerformEvaluationFunction();
                     
                     // If we are violating fewer constraints with the new guess, keep track
-                    if (currentEvaluation < originalEvaluation)
+                    if (currentEvaluation <= bestEvaluation)
                     {
                         bestEvaluation = currentEvaluation;
                         bestValue = value;
-                        _solvedGrid.SetNodeValue(currentNode.Row, currentNode.Column, bestValue);
-                        _procesesed++;
                     }
+
+                    _procesesed++;
                 }
+                
+                if (bestValue != 0)
+                    _solvedGrid.SetNodeValue(currentNode.Row, currentNode.Column, bestValue);
             }
         }
 

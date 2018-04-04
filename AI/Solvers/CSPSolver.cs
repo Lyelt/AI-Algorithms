@@ -12,7 +12,7 @@ namespace AI
         protected SudokuGrid _grid;
         protected Stopwatch _solverStopwatch;
         protected int _procesesed = 0;
-
+        protected int _iterations = 0;
         // Abstract Solve method that each solver must implement
         public abstract CSPSolution Solve();
 
@@ -32,10 +32,10 @@ namespace AI
 
         protected CSPSolution CompleteSolve(string name)
         {
-            return CompleteSolve(name, _grid, _solverStopwatch.Elapsed, _procesesed);
+            return CompleteSolve(name, _grid, _solverStopwatch.Elapsed, _procesesed, _iterations);
         }
 
-        protected CSPSolution CompleteSolve(string name, SudokuGrid grid, TimeSpan elapsed, int processed)
+        protected CSPSolution CompleteSolve(string name, SudokuGrid grid, TimeSpan elapsed, int processed, int iterations)
         {
             CSPSolution solution = new CSPSolution();
 
@@ -43,6 +43,7 @@ namespace AI
             solution.SolutionGrid = grid;
             solution.TimeElapsed = elapsed;
             solution.Processed = processed;
+            solution.Iterations = iterations;
 
             return solution;
         }

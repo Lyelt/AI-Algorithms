@@ -14,6 +14,8 @@ namespace AI
         
         public int Processed { get; set; }
 
+        public int Iterations { get; set; }
+
         public SudokuGrid SolutionGrid { get; set; }
     }
 }

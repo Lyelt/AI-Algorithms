@@ -47,12 +47,9 @@ namespace AI
 
         public void Randomize()
         {
-            foreach (Node node in Grid)
+            foreach (Node node in EditableGrid)
             {
-                if (node.Value == 0)
-                {
-                    node.Value = Randomizer.Next(1, DefaultDomain.Count + 1);
-                }
+                SetNodeValue(node.Row, node.Column, Randomizer.Next(1, DefaultDomain.Count + 1));
             }
         }
 

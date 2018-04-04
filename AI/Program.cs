@@ -81,6 +81,8 @@ namespace AI
             Console.WriteLine($"Solution for {solution.AlgorithmName}");
             Console.WriteLine($"Solved in {solution.TimeElapsed.TotalMilliseconds} ms");
             Console.WriteLine($"Processed {solution.Processed} nodes");
+            if (solution.Iterations > 0)
+                Console.WriteLine($"Solved in {solution.Iterations} iterations");
             Console.WriteLine();
 
             PrintGrid(solution.SolutionGrid);
